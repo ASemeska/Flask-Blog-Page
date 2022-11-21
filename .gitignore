@@ -1,0 +1,29 @@
+# .gitignore file tells Git which files to ignore when committing your project 
+# to the Git repository. .gitignore is located in the root directory of your 
+# repo. The .gitignore file itself is a plain text document.
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Environments
+venv/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# PyCharm project-specific settings. It also contains user's local PyCharm configs
+# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839.
+.idea/
+
+# Contains VS Code workspace settings as well as configurations.
+# Reference: https://code.visualstudio.com/docs/editor/workspaces.
+.vscode/
+
+# Mac OS generated files
+.DS_Store
+.DS_Store?
+
+# Windows OS generated files
+Thumbs.db

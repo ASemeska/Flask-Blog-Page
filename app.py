@@ -54,15 +54,17 @@ class Users(db.Model, UserMixin):
 class Posts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150), nullable=False)
+    author = db.Column(db.String(150), nullable=False)
     content = db.Column(db.String, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
-    category = db.relationship('Category', backref='posts')
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150), nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    post = db.relationship('Posts', backref='category')
+    
 
 ############FORMS####################
 #Registration form:
@@ -71,7 +73,7 @@ class UserForm(FlaskForm):
     email = StringField("Whats your email", validators=[DataRequired()])
     password_hash = PasswordField('Password', validators=[DataRequired(), EqualTo('password_hash2', message='Passwords Must Match!')])
     password_hash2 = PasswordField('Confirm Password', validators=[DataRequired()])
-    submit = SubmitField("Submit name")
+    submit = SubmitField("Submit")
 
 
 class LoginForm(FlaskForm):
@@ -81,8 +83,9 @@ class LoginForm(FlaskForm):
 
 class PostForm(FlaskForm):
     title = StringField("Post title", validators=[DataRequired()])
-    content = StringField("Post title", validators=[DataRequired()])
-    category = StringField("Post title")
+    content = StringField("Post content", validators=[DataRequired()])
+    category = StringField("Post category")
+    submit = SubmitField("Submit")
 
 ###########ROUTES####################
 
@@ -121,8 +124,44 @@ def register():
         else:
             flash("Something went wrong, please try again")
     return render_template("register.html", form = form)
+    
 
+@app.route('/posts', methods=['GET', 'POST'])
+@login_required
+def posts():
+    category = None
+    posts = Posts.query.order_by(Posts.date_added)
+    for post in posts:
+        category = Category.query.filter_by(id = post.category_id).first()
 
+    return render_template("posts.html", posts = posts, category = category)
+
+@app.route('/add-post', methods=['GET', 'POST'])
+def add_post():
+    form = PostForm()
+    id = current_user.id
+    if form.validate_on_submit():
+        category = Category.query.filter_by(title = form.category.data).first()
+        if category:    
+            post = Posts(title = form.title.data, content = form.content.data, user_id = current_user.id, author = current_user.username, category_id = category.id)
+            db.session.add(post)
+            db.session.commit()
+            flash("Post added sucessfully!")
+        else:
+            category = Category(title = form.category.data)
+            db.session.add(category)
+            db.session.commit()
+            post = Posts(title = form.title.data, content = form.content.data, user_id = current_user.id, author = current_user.username, category_id = category.id)
+            db.session.add(post)
+            db.session.commit()
+            flash("Post added sucessfully!")
+        
+
+    form.title.data = ''
+    form.content.data = ''
+    form.category.data = ''
+    
+    return render_template("add_post.html", form = form)
 
 
 ############CUSTOM ERRORS############ 

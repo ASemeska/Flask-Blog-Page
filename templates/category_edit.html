@@ -15,21 +15,7 @@
 		{{ form.hidden_tag() }}
 		{{ form.title.label(class="form-label") }}
 		{{ form.title(class="form-control") }}
-		<br/>
-		{{ form.content.label(class="form-label") }}
-		{{ form.content(class="form-control") }}
-		<br/>
-		{{ form.category.label(class="form-label") }}
-		{{ form.category(class="form-control") }}
-        or type existing category:
-        <ul>
-		{% for category in all_categories  %}
-            <li>
-                {{category.title}}
-            </li>
-		{% endfor %}
-        </ul>
-		<br/>
+        <br>
 		{{ form.submit(class="btn btn-secondary") }}
 		
         <br><br>
@@ -37,6 +23,6 @@
 	</form>
 </div>
 
-<a href="{{url_for('posts')}}" class="btn btn-outline-secondary btn-sm">Back to Posts</a>
+<a href="{{url_for('categories')}}" class="btn btn-outline-secondary btn-sm">Back to Posts</a>
 
 {% endblock %}

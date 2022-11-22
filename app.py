@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, flash, redirect, url_for
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError, SelectField
+from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError
 from wtforms.validators import DataRequired, EqualTo, Length
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -85,6 +85,10 @@ class PostForm(FlaskForm):
     title = StringField("Post title", validators=[DataRequired()])
     content = StringField("Post content", validators=[DataRequired()])
     category = StringField("Post category")
+    submit = SubmitField("Submit")
+
+class CategoryUpdateForm(FlaskForm):
+    title = StringField("Post title", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
 ###########ROUTES####################
@@ -207,7 +211,7 @@ def edit_post(id):
     form.title.data = post.title
     form.content.data = post.content
     form.category.data = category.title
-    return render_template("post_edit.html", form = form, all_categories = all_categories)
+    return render_template("post_edit.html", form = form, all_categories = all_categories, id = post.id)
 
 @app.route('/posts/delete/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -232,7 +236,34 @@ def delete_post(id):
         return redirect(url_for('posts', id = post_to_delete.id))
 
 @app.route('/categories', methods=['GET', 'POST'])
-@l
+def categories():
+    categories = Category.query.order_by(Category.title)
+    return render_template("categories.html", categories = categories)
+
+@app.route('/categories/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_category(id):
+    form = CategoryUpdateForm()
+    category = Category.query.get_or_404(id)
+    if form.validate_on_submit():
+        category.title = form.title.data
+        db.session.add(category)
+        db.session.commit()
+        flash("Category updated sucessfully!")
+        return redirect(url_for('categories', form = form, id = category.id))
+    form.title.data = category.title
+    return render_template("category_edit.html", form = form, id = category.id)
+
+
+
+
+
+
+
+
+
+
+
 
 ############CUSTOM ERRORS############ 
 

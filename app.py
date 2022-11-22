@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, flash, redirect, url_for
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError
+from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError, SelectField
 from wtforms.validators import DataRequired, EqualTo, Length
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -174,6 +174,7 @@ def add_post():
 @app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_post(id):
+    all_categories = Category.query.order_by(Category.id)
     post = Posts.query.get_or_404(id)
     category = Category.query.get_or_404(post.category_id)
     form = PostForm()
@@ -188,7 +189,7 @@ def edit_post(id):
                 db.session.add(post)
                 db.session.commit()
                 flash("Post updated sucessfully!")
-                return redirect(url_for('posts', id = post.id))
+                return redirect(url_for('posts', id = post.id, all_categories = all_categories))
             else:
                 post.title = form.title.data
                 post.content = form.content.data
@@ -199,14 +200,14 @@ def edit_post(id):
                 db.session.add(post)
                 db.session.commit()
                 flash("Post updated sucessfully!")
-                return redirect(url_for('posts', id = post.id))
+                return redirect(url_for('posts', id = post.id, all_categories = all_categories))
     else:
         flash("You cannot edit this post!")
         return redirect(url_for('posts', id = post.id))
     form.title.data = post.title
     form.content.data = post.content
     form.category.data = category.title
-    return render_template("post_edit.html", form = form)
+    return render_template("post_edit.html", form = form, all_categories = all_categories)
 
 @app.route('/posts/delete/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -229,6 +230,9 @@ def delete_post(id):
         flash("You are not allowed to delete this post!")
         posts = Posts.query.order_by(Posts.date_added)
         return redirect(url_for('posts', id = post_to_delete.id))
+
+@app.route('/categories', methods=['GET', 'POST'])
+@l
 
 ############CUSTOM ERRORS############ 
 

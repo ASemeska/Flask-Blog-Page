@@ -21,13 +21,15 @@
 		<br/>
 		{{ form.category.label(class="form-label") }}
 		{{ form.category(class="form-control") }}
-        or select existing category:
-		{% for category in all_categories  %} 
-		{{category.title}}
+        or type existing category:
+        <ul>
+		{% for category in all_categories  %}
+            <li>
+                {{category.title}}
+            </li>
 		{% endfor %}
+        </ul>
 		<br/>
-
-
 		{{ form.submit(class="btn btn-secondary") }}
         <br><br>
         
@@ -35,6 +37,5 @@
 </div>
 
 <a href="{{url_for('posts')}}" class="btn btn-outline-secondary btn-sm">Back to Posts</a>
-
 
 {% endblock %}

@@ -107,6 +107,13 @@ def login():
 
     return render_template('login.html', form=form)
 
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+	logout_user()
+	flash("You Have Been Logged Out!")
+	return redirect(url_for('login'))
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = UserForm()
@@ -137,9 +144,11 @@ def posts():
     return render_template("posts.html", posts = posts, category = category)
 
 @app.route('/add-post', methods=['GET', 'POST'])
+@login_required
 def add_post():
     form = PostForm()
     id = current_user.id
+    all_categories = Category.query.all() #Padarysi su JS dropdown lista
     if form.validate_on_submit():
         category = Category.query.filter_by(title = form.category.data).first()
         if category:    
@@ -156,13 +165,70 @@ def add_post():
             db.session.commit()
             flash("Post added sucessfully!")
         
-
     form.title.data = ''
     form.content.data = ''
     form.category.data = ''
     
-    return render_template("add_post.html", form = form)
+    return render_template("add_post.html", form = form, all_categories = all_categories)
 
+@app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_post(id):
+    post = Posts.query.get_or_404(id)
+    category = Category.query.get_or_404(post.category_id)
+    form = PostForm()
+    id = current_user.id
+    if id == post.user_id:
+        if form.validate_on_submit():
+            category = Category.query.filter_by(title = form.category.data).first()
+            if category:
+                post.title = form.title.data
+                post.content = form.content.data
+                post.category_id = category.id
+                db.session.add(post)
+                db.session.commit()
+                flash("Post updated sucessfully!")
+                return redirect(url_for('posts', id = post.id))
+            else:
+                post.title = form.title.data
+                post.content = form.content.data
+                category = Category(title = form.category.data)
+                db.session.add(category)
+                db.session.commit()
+                post.category_id = category.id
+                db.session.add(post)
+                db.session.commit()
+                flash("Post updated sucessfully!")
+                return redirect(url_for('posts', id = post.id))
+    else:
+        flash("You cannot edit this post!")
+        return redirect(url_for('posts', id = post.id))
+    form.title.data = post.title
+    form.content.data = post.content
+    form.category.data = category.title
+    return render_template("post_edit.html", form = form)
+
+@app.route('/posts/delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def delete_post(id):
+    post_to_delete = Posts.query.get_or_404(id)
+    id = current_user.id
+    if id == post_to_delete.user_id:
+        try:
+            db.session.delete(post_to_delete)
+            db.session.commit()
+            flash("Post deleted Sucessfully!")
+            posts = Posts.query.order_by(Posts.date_added)
+            return render_template("posts.html", posts = posts)
+        except:
+            flash("Post was not deleted, try again!")
+            posts = Posts.query.order_by(Posts.date_added)
+            return render_template("posts.html", posts = posts)
+
+    else:
+        flash("You are not allowed to delete this post!")
+        posts = Posts.query.order_by(Posts.date_added)
+        return redirect(url_for('posts', id = post_to_delete.id))
 
 ############CUSTOM ERRORS############ 
 

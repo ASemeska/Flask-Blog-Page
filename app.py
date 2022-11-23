@@ -35,6 +35,7 @@ class Users(db.Model, UserMixin):
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     password_hash = db.Column(db.String(128))
     posts = db.relationship('Posts', backref='users')
+    category = db.relationship('Category', backref='users')
 
     @property
     def password(self):
@@ -48,7 +49,7 @@ class Users(db.Model, UserMixin):
             return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
-            return '<Name %r>' % self.name
+            return '<Username %r>' % self.username
 
 
 class Posts(db.Model):
@@ -59,11 +60,13 @@ class Posts(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    category_title = db.Column(db.String)
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150), nullable=False)
     post = db.relationship('Posts', backref='category')
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     
 
 ############FORMS####################
@@ -88,7 +91,7 @@ class PostForm(FlaskForm):
     submit = SubmitField("Submit")
 
 class CategoryUpdateForm(FlaskForm):
-    title = StringField("Post title", validators=[DataRequired()])
+    title = StringField("Category", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
 ###########ROUTES####################
@@ -156,15 +159,15 @@ def add_post():
     if form.validate_on_submit():
         category = Category.query.filter_by(title = form.category.data).first()
         if category:    
-            post = Posts(title = form.title.data, content = form.content.data, user_id = current_user.id, author = current_user.username, category_id = category.id)
+            post = Posts(title = form.title.data, content = form.content.data, user_id = current_user.id, author = current_user.username, category_id = category.id, category_title = category.title)
             db.session.add(post)
             db.session.commit()
             flash("Post added sucessfully!")
         else:
-            category = Category(title = form.category.data)
+            category = Category(title = form.category.data, user_id = current_user.id,)
             db.session.add(category)
             db.session.commit()
-            post = Posts(title = form.title.data, content = form.content.data, user_id = current_user.id, author = current_user.username, category_id = category.id)
+            post = Posts(title = form.title.data, content = form.content.data, user_id = current_user.id, author = current_user.username, category_id = category.id, category_title = category.title)
             db.session.add(post)
             db.session.commit()
             flash("Post added sucessfully!")
@@ -178,7 +181,7 @@ def add_post():
 @app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_post(id):
-    all_categories = Category.query.order_by(Category.id)
+    all_categories = Category.query.all()
     post = Posts.query.get_or_404(id)
     category = Category.query.get_or_404(post.category_id)
     form = PostForm()
@@ -190,6 +193,8 @@ def edit_post(id):
                 post.title = form.title.data
                 post.content = form.content.data
                 post.category_id = category.id
+                post.category_title = category.title
+                post.user_id = id
                 db.session.add(post)
                 db.session.commit()
                 flash("Post updated sucessfully!")
@@ -197,10 +202,11 @@ def edit_post(id):
             else:
                 post.title = form.title.data
                 post.content = form.content.data
-                category = Category(title = form.category.data)
+                category = Category(title = form.category.data, user_id = id,)
                 db.session.add(category)
                 db.session.commit()
                 post.category_id = category.id
+                post.category_title = category.title
                 db.session.add(post)
                 db.session.commit()
                 flash("Post updated sucessfully!")
@@ -240,19 +246,44 @@ def categories():
     categories = Category.query.order_by(Category.title)
     return render_template("categories.html", categories = categories)
 
+
+    
+
 @app.route('/categories/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_category(id):
     form = CategoryUpdateForm()
     category = Category.query.get_or_404(id)
+    post = Posts.query.get_or_404(category.id)
+    print(post.title)
     if form.validate_on_submit():
         category.title = form.title.data
         db.session.add(category)
+        db.session.commit()
+        post.category_title = form.title.data
+        db.session.add(post)
         db.session.commit()
         flash("Category updated sucessfully!")
         return redirect(url_for('categories', form = form, id = category.id))
     form.title.data = category.title
     return render_template("category_edit.html", form = form, id = category.id)
+
+
+@app.route('/add-category', methods=['GET', 'POST'])
+@login_required
+def add_category():
+    form = CategoryUpdateForm()
+    id = current_user.id
+    if form.validate_on_submit():
+        category = Category(title = form.title.data, user_id = id)
+        form.title.data = ''
+        db.session.add(category)
+        db.session.commit()
+        flash("Category created sucesfully!")
+
+    return render_template("category_add.html", form = form)
+
+
 
 
 

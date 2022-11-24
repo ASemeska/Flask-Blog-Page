@@ -23,12 +23,11 @@
 		{{ form.content.label(class="form-label") }}
 		{{ form.content(class="form-control") }}
 		<br/>
+		{{ form.new_category.label(class="form-label") }}
+		{{ form.new_category(class="form-control") }}
+		or select existing category:
 		{{ form.category.label(class="form-label") }}
 		{{ form.category(class="form-control") }}
-		or select existing category:
-		{% for category in all_categories  %} 
-		{{category.title}}
-		{% endfor %}
 
 		<br/>
 		{{ form.submit(class="btn btn-secondary") }}

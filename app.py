@@ -1,7 +1,7 @@
 import os
-from flask import Flask, render_template, flash, redirect, url_for
+from flask import Flask, render_template, flash, redirect, url_for, request
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError
+from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError, SelectField, SearchField
 from wtforms.validators import DataRequired, EqualTo, Length
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -67,7 +67,7 @@ class Category(db.Model):
     title = db.Column(db.String(150), nullable=False)
     post = db.relationship('Posts', backref='category')
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    
+
 
 ############FORMS####################
 #Registration form:
@@ -87,12 +87,22 @@ class LoginForm(FlaskForm):
 class PostForm(FlaskForm):
     title = StringField("Post title", validators=[DataRequired()])
     content = StringField("Post content", validators=[DataRequired()])
-    category = StringField("Post category")
+    category = SelectField("")
+    new_category = StringField("Create new category")
     submit = SubmitField("Submit")
 
 class CategoryUpdateForm(FlaskForm):
     title = StringField("Category", validators=[DataRequired()])
     submit = SubmitField("Submit")
+
+class CategoryFilterForm(FlaskForm):
+    title = SelectField("Category title")
+    submit = SubmitField("Filter")
+
+class PostSearchForm(FlaskForm):
+    title = SearchField("Search for post title:")
+    submit = SubmitField("Search")
+
 
 ###########ROUTES####################
 
@@ -143,40 +153,47 @@ def register():
 @app.route('/posts', methods=['GET', 'POST'])
 @login_required
 def posts():
-    category = None
+    form = PostSearchForm()
+    if form.validate_on_submit():
+        post = Posts.query.filter_by(title = form.title.data).first()
+        if post:
+            posts = Posts.query.filter_by(title = post.title)
+            return render_template("posts_filtered.html", posts = posts, form = form)
+        else:
+            flash("No post found with this name, please try again!")
+            return url_for('posts')
     posts = Posts.query.order_by(Posts.date_added)
-    for post in posts:
-        category = Category.query.filter_by(id = post.category_id).first()
-
-    return render_template("posts.html", posts = posts, category = category)
+    return render_template("posts.html", posts = posts, form = form)
 
 @app.route('/add-post', methods=['GET', 'POST'])
 @login_required
 def add_post():
     form = PostForm()
+    categories = Category.query.all()
     id = current_user.id
-    all_categories = Category.query.all() #Padarysi su JS dropdown lista
+    form.category.choices = [(g.title) for g in categories]
+    
+ 
     if form.validate_on_submit():
-        category = Category.query.filter_by(title = form.category.data).first()
-        if category:    
-            post = Posts(title = form.title.data, content = form.content.data, user_id = current_user.id, author = current_user.username, category_id = category.id, category_title = category.title)
+        if form.new_category.data != '':
+            new_category = Category(title = form.new_category.data, user_id = id)
+            db.session.add(new_category)
+            db.session.commit()
+            post = Posts(title = form.title.data, author= current_user.username, content = form.content.data, user_id = id, category_id = new_category.id, category_title = new_category.title)
             db.session.add(post)
             db.session.commit()
-            flash("Post added sucessfully!")
+            flash("Post and category were added sucessfully!")
         else:
-            category = Category(title = form.category.data, user_id = current_user.id,)
-            db.session.add(category)
-            db.session.commit()
-            post = Posts(title = form.title.data, content = form.content.data, user_id = current_user.id, author = current_user.username, category_id = category.id, category_title = category.title)
+            print(form.category.data)
+            category = Category.query.filter_by(title = form.category.data).first()
+            post = Posts(title = form.title.data, author= current_user.username, content = form.content.data, user_id = id, category_id = category.id, category_title = category.title)
             db.session.add(post)
             db.session.commit()
-            flash("Post added sucessfully!")
-        
+            flash("Post was added sucessfully!")
     form.title.data = ''
     form.content.data = ''
-    form.category.data = ''
-    
-    return render_template("add_post.html", form = form, all_categories = all_categories)
+    form.new_category.data = ''
+    return render_template("post_add.html", form = form)
 
 @app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -230,11 +247,11 @@ def delete_post(id):
             db.session.commit()
             flash("Post deleted Sucessfully!")
             posts = Posts.query.order_by(Posts.date_added)
-            return render_template("posts.html", posts = posts)
+            return redirect(url_for('posts', id = post_to_delete.id))
         except:
             flash("Post was not deleted, try again!")
             posts = Posts.query.order_by(Posts.date_added)
-            return render_template("posts.html", posts = posts)
+            return redirect(url_for('posts', id = post_to_delete.id))
 
     else:
         flash("You are not allowed to delete this post!")
@@ -243,9 +260,15 @@ def delete_post(id):
 
 @app.route('/categories', methods=['GET', 'POST'])
 def categories():
-    categories = Category.query.order_by(Category.title)
-    return render_template("categories.html", categories = categories)
-
+    form = CategoryFilterForm()
+    categories = Category.query.order_by(Category.id)
+    form.title.choices = [(g.title) for g in categories]
+    if form.validate_on_submit():
+        title = form.title.data
+        posts = Posts.query.filter_by(category_title = title)
+        return render_template("posts_filtered.html", form = form, categories = categories, posts = posts)
+    else:
+        return render_template("categories.html", categories = categories, form = form)
 
     
 
@@ -255,7 +278,6 @@ def edit_category(id):
     form = CategoryUpdateForm()
     category = Category.query.get_or_404(id)
     post = Posts.query.get_or_404(category.id)
-    print(post.title)
     if form.validate_on_submit():
         category.title = form.title.data
         db.session.add(category)
@@ -283,12 +305,40 @@ def add_category():
 
     return render_template("category_add.html", form = form)
 
+@app.route('/cateogries/delete/<int:id>')
+@login_required
+def delete_category(id):
+    category_to_delete = Category.query.get_or_404(id)
+    id = current_user.id
+    posts_to_edit = Posts.query.filter_by(category_id = category_to_delete.id)
+    if id == category_to_delete.user_id:
+        try:
+            for post in posts_to_edit:
+                post.category_id = 1
+                post.category_title = ""
+                db.session.add(post)
+                db.session.commit()
+            db.session.delete(category_to_delete)
+            db.session.commit()
+            flash("Category deleted Sucessfully!")
+            categories = Category.query.order_by(Category.id)
+            return render_template("categories.html", categories = categories)
+        except:
+            flash("Category was not deleted, try again!")
+            categories = Category.query.order_by(Category.id)
+            return render_template("categories.html", categories = categories)
+
+    else:
+        flash("You are not allowed to delete this category!")
+        categories = Category.query.order_by(Category.id)
+        return redirect(url_for('posts', id = category_to_delete.id))
 
 
 
 
 
 
+    
 
 
 

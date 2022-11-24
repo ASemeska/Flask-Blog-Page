@@ -19,16 +19,13 @@
 		{{ form.content.label(class="form-label") }}
 		{{ form.content(class="form-control") }}
 		<br/>
+		{{ form.new_category.label(class="form-label") }}
+		{{ form.new_category(class="form-control") }}
+		<br>
+		Or select from already created categories:
 		{{ form.category.label(class="form-label") }}
 		{{ form.category(class="form-control") }}
-        or type existing category:
-        <ul>
-		{% for category in all_categories  %}
-            <li>
-                {{category.title}}
-            </li>
-		{% endfor %}
-        </ul>
+
 		<br/>
 		{{ form.submit(class="btn btn-secondary") }}
 		

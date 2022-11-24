@@ -184,7 +184,6 @@ def add_post():
             db.session.commit()
             flash("Post and category were added sucessfully!")
         else:
-            print(form.category.data)
             category = Category.query.filter_by(title = form.category.data).first()
             post = Posts(title = form.title.data, author= current_user.username, content = form.content.data, user_id = id, category_id = category.id, category_title = category.title)
             db.session.add(post)
@@ -195,34 +194,37 @@ def add_post():
     form.new_category.data = ''
     return render_template("post_add.html", form = form)
 
+
 @app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_post(id):
-    all_categories = Category.query.all()
-    post = Posts.query.get_or_404(id)
-    category = Category.query.get_or_404(post.category_id)
     form = PostForm()
+    all_categories = Category.query.all()
+    form.category.choices =[(g.title) for g in all_categories]
+    post = Posts.query.get_or_404(id)
     id = current_user.id
+    category = Category.query.get_or_404(post.category_id)
     if id == post.user_id:
         if form.validate_on_submit():
-            category = Category.query.filter_by(title = form.category.data).first()
-            if category:
+            if form.new_category.data != '':
+                new_category = Category(title = form.new_category.data, user_id = id)
+                db.session.add(new_category)
+                db.session.commit()
                 post.title = form.title.data
                 post.content = form.content.data
-                post.category_id = category.id
-                post.category_title = category.title
-                post.user_id = id
+                post.category_id = new_category.id
+                post.used_id = id
+                post.category_title = new_category.title
                 db.session.add(post)
                 db.session.commit()
-                flash("Post updated sucessfully!")
+                flash("Post updated sucessfully! New category added")
                 return redirect(url_for('posts', id = post.id, all_categories = all_categories))
             else:
+                category = Category.query.filter_by(title = form.category.data).first()
                 post.title = form.title.data
                 post.content = form.content.data
-                category = Category(title = form.category.data, user_id = id,)
-                db.session.add(category)
-                db.session.commit()
                 post.category_id = category.id
+                post.used_id = id
                 post.category_title = category.title
                 db.session.add(post)
                 db.session.commit()
@@ -231,10 +233,12 @@ def edit_post(id):
     else:
         flash("You cannot edit this post!")
         return redirect(url_for('posts', id = post.id))
+
     form.title.data = post.title
     form.content.data = post.content
     form.category.data = category.title
-    return render_template("post_edit.html", form = form, all_categories = all_categories, id = post.id)
+    return render_template("post_edit.html", form = form)
+
 
 @app.route('/posts/delete/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -305,9 +309,10 @@ def add_category():
 
     return render_template("category_add.html", form = form)
 
-@app.route('/cateogries/delete/<int:id>')
+@app.route('/categories/delete/<int:id>')
 @login_required
 def delete_category(id):
+    form = CategoryUpdateForm()
     category_to_delete = Category.query.get_or_404(id)
     id = current_user.id
     posts_to_edit = Posts.query.filter_by(category_id = category_to_delete.id)
@@ -315,7 +320,7 @@ def delete_category(id):
         try:
             for post in posts_to_edit:
                 post.category_id = 1
-                post.category_title = ""
+                post.category_title = "Uncategorized"
                 db.session.add(post)
                 db.session.commit()
             db.session.delete(category_to_delete)
@@ -326,20 +331,12 @@ def delete_category(id):
         except:
             flash("Category was not deleted, try again!")
             categories = Category.query.order_by(Category.id)
-            return render_template("categories.html", categories = categories)
+            return render_template("categories.html", categories = categories, form = form)
 
     else:
         flash("You are not allowed to delete this category!")
         categories = Category.query.order_by(Category.id)
-        return redirect(url_for('posts', id = category_to_delete.id))
-
-
-
-
-
-
-    
-
+        return redirect(url_for('cateogories', id = category_to_delete.id, categories = categories))
 
 
 

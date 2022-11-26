@@ -1,5 +1,12 @@
 {% extends 'base.html' %}
 
+
+{% block navbbar %}
+
+{% include 'navbar_logedin.html' %}
+
+{% endblock %}
+
 {% block content %}
 
 {% for message in get_flashed_messages() %}

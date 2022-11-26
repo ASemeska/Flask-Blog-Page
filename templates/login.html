@@ -1,5 +1,12 @@
 {% extends 'base.html' %}
 
+{% block navbbar %}
+
+{% include 'navbar.html' %}
+
+{% endblock %}
+
+
 {% block content %}
 
 {% for message in get_flashed_messages() %}
@@ -11,30 +18,24 @@
 
 {% endfor %}
 
-	<h1>Login</h1>
-	<br/><br/>
+	<h1 class="greeting-message">Welcome to the Blog posting page, please Login or Register!</h1>
 
-<div class="shadow p-3 mb-5 bg-body rounded">
-	<form method="POST">
+<div class="form-container">
+	<form method="POST" class="form">
 		{{ form.hidden_tag() }}
 
-		{{ form.username.label(class="form-label") }}
+		{{ form.username.label(class="form-entry") }}
 
-		{{ form.username(class="form-control") }}
+		{{ form.username(class="form-control form-input") }}
 		<br/>
 
-		{{ form.password.label(class="form-label") }}
+		{{ form.password.label(class="form-label form-entry") }}
 
-		{{ form.password(class="form-control") }}
-		<br/>
+		{{ form.password(class="form-control form-input") }}
 
-
-		<br/>
-
-		{{ form.submit(class="btn btn-secondary") }}
-        <br>
-        <p>Not registered?</p> 
-        <a class="btn btn-outline-info" href="{{url_for('register')}}">Register here</a>
+		{{ form.submit(class="btn btn-secondary submit-btn user-form-btn") }}
+		<p class="form-text">or Register down below:</p>
+        <a class="btn btn-outline-info register-btn user-form-btn" href="{{url_for('register')}}">Register here</a>
 
 
 	</form>

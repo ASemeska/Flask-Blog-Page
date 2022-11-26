@@ -72,10 +72,10 @@ class Category(db.Model):
 ############FORMS####################
 #Registration form:
 class UserForm(FlaskForm):
-    username = StringField("Whats your username", validators=[DataRequired()])
-    email = StringField("Whats your email", validators=[DataRequired()])
-    password_hash = PasswordField('Password', validators=[DataRequired(), EqualTo('password_hash2', message='Passwords Must Match!')])
-    password_hash2 = PasswordField('Confirm Password', validators=[DataRequired()])
+    username = StringField("Whats your username:", validators=[DataRequired()])
+    email = StringField("Whats your email:", validators=[DataRequired()])
+    password_hash = PasswordField('Password:', validators=[DataRequired(), EqualTo('password_hash2', message='Passwords Must Match!')])
+    password_hash2 = PasswordField('Confirm Password:', validators=[DataRequired()])
     submit = SubmitField("Submit")
 
 
@@ -86,7 +86,7 @@ class LoginForm(FlaskForm):
 
 class PostForm(FlaskForm):
     title = StringField("Post title", validators=[DataRequired()])
-    content = StringField("Post content", validators=[DataRequired()])
+    content = StringField("Post content", validators=[DataRequired()],widget=TextArea())
     category = SelectField("")
     new_category = StringField("Create new category")
     submit = SubmitField("Submit")
@@ -105,6 +105,8 @@ class PostSearchForm(FlaskForm):
 
 
 ###########ROUTES####################
+
+
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -145,6 +147,7 @@ def register():
             form.username.data = ''	
             form.password_hash.data = ''	
             flash("User Added Successfully!")
+            return(redirect(url_for('login')))
         else:
             flash("Something went wrong, please try again")
     return render_template("register.html", form = form)

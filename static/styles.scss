@@ -1,0 +1,106 @@
+$primary-color: #1a2634;
+$background-color: #b84d69;
+$main-font-size: 1.125rem;
+$font-family: 'Fredoka One', cursive;
+$font-standart: 300;
+$font-bold: 600;
+$side-margin: 0.3em;
+$opacity-color: rgb(0, 0, 0, 0.2);
+
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: $font-family;
+    height: 100vh;
+    font-size: $main-font-size;
+    font-weight: $font-standart;
+    background-image: url("../static/trianglify-lowres-transformed.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+.container {
+    margin: 0;
+    min-width: 100%;
+    background: #e65c00;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to left, #F9D423, #e65c00);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to left, #F9D423, #e65c00); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius:10px;
+    padding-bottom: 2em;
+}
+
+.container-flex {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    margin: 0;
+}
+
+nav a{
+    padding-top: 0.5em;
+    color: $primary-color;
+    list-style: none;
+    padding: 2em;
+    margin-left: 1em;
+    text-decoration: none;
+    background-color: transparent;
+    font-weight: $font-bold;
+    border: none;
+}
+
+nav a:active, nav a:hover, nav a:focus{
+    color: #fff;
+    background-color: $primary-color;
+    border: 4px solid $primary-color;
+}
+
+.greeting-message{
+    margin-left: $side-margin;
+    margin-top: 0.5em;
+}
+
+.form-container{
+    background-color:$opacity-color;
+    display: flex;
+    max-width: 20%;
+    border: 2px solid $primary-color;
+    box-shadow: 5px 8px;
+    border-radius: 25px;
+    margin: 4em auto;
+}
+
+.form{
+    margin: 0 auto;
+    border-radius: 25px;
+    
+}
+
+.form-entry:first-child{
+    margin-top: 0.5em;
+}
+
+.form-input{
+    background-color: $opacity-color;
+    align-items: center;
+    justify-content: center;
+    border:2px solid $primary-color
+}
+.form-text{
+    color: $primary-color;
+}
+
+.user-form-btn, .register-btn{
+    margin-top: 1em;
+    margin-bottom: 1em;
+    border: 2px solid white;
+    color: $primary-color;
+}

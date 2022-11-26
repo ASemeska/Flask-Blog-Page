@@ -1,5 +1,12 @@
 {% extends 'base.html' %}
 
+
+{% block navbbar %}
+
+{% include 'navbar_logedin.html' %}
+
+{% endblock %}
+
 {% block content %}
 
 {% for message in get_flashed_messages() %}
@@ -21,7 +28,7 @@
 		{{ form.title(class="form-control") }}
 		<br/>
 		{{ form.content.label(class="form-label") }}
-		{{ form.content(class="form-control") }}
+		{{ form.content(class="form-control", rows="10") }}
 		<br/>
 		{{ form.new_category.label(class="form-label") }}
 		{{ form.new_category(class="form-control") }}

@@ -1,5 +1,11 @@
 {% extends 'base.html' %}
 
+{% block navbbar %}
+
+{% include 'navbar.html' %}
+
+{% endblock %}
+
 {% block content %}
 
 {% for message in get_flashed_messages() %}
@@ -11,27 +17,27 @@
 
 {% endfor %}
 
-	<h1>Register</h1>
-	<br/><br/>
+	<h1 class="greeting-message">Please fill out the register form:</h1>
 
 
-<div class="shadow p-3 mb-5 bg-body rounded">
-    <form method="POST">
+
+<div class="form-container">
+
+    <form method="POST" class="form">
 		{{form.hidden_tag()}}
-        {{form.username.label(class="form-label")}}
-		{{form.username(class="form-control")}}
+        {{form.username.label(class="form-entry")}}
+		{{form.username(class="form-control form-input")}}
 		<br/>
-		{{form.email.label(class="form-label")}}
-		{{form.email(class="form-control")}}
+		{{form.email.label(class="form-label form-entry")}}
+		{{form.email(class="form-control form-input")}}
 		<br/>
-		{{form.password_hash.label(class="form-label")}}
-		{{form.password_hash(class="form-control")}}
+		{{form.password_hash.label(class="form-label form-entry")}}
+		{{form.password_hash(class="form-control form-input")}}
 		<br/>
-		{{form.password_hash2.label(class="form-label")}}
-		{{form.password_hash2(class="form-control")}}
-		<br/>
-		{{form.submit(class="btn btn-secondary")}}
-        <a href="{{url_for('login')}}" class="btn btn-secondary">Go to Login</a>
+		{{form.password_hash2.label(class="form-label form-entry")}}
+		{{form.password_hash2(class="form-control form-input")}}
+		{{form.submit(class="btn btn-secondary user-form-btn")}}
+       
 
 	</form>
 </div>

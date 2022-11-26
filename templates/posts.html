@@ -17,15 +17,17 @@
 	</div>
 {% endfor %}
 
-<div class="shadow p-3 mb-5 bg-body rounded">
-	<form method="POST">
+<h1 class="greeting-message">All Blog Posts</h1>
+
+<div class="search-container">
+	<form method="POST" class="form">
 		{{ form.hidden_tag() }}
-		{{ form.title.label(class="form-label") }}
-		{{ form.title(class="form-control") }}
+		{{ form.title.label(class="form-entry") }}
+		{{ form.title(class="form-control form-input form-search") }}
 
 
 		<br/>
-		{{ form.submit(class="btn btn-secondary") }}
+		{{ form.submit(class="btn btn-secondary user-form-btn search-btn") }}
     <br>
     
 	</form>
@@ -38,21 +40,19 @@
 
 
 {%for post in posts %}
-  <div class="shadow p-3 mb-5 bg-body rounded">
+  <div class="content-container">
     {% if post.category_title == "" %}
       <h1>{{post.title}}</h1>
-      By: {{post.author}} | Added on: {{post.date_added}} | Category: Uncategorized
-      <br>
-      {{post.content}} 
-      <br><br>
+      <p class="post-data">{{post.author}} | Added on: {{post.date_added}} | Category: Uncategorized</p> 
+
+      <p>{{post.content}} </p>
+    
       <a href="{{url_for('edit_post', id = post.id)}}" class="btn btn-outline-secondary btn-sm">Edit Post</a>
       <a href="{{url_for('delete_post', id = post.id)}}" class="btn btn-outline-danger btn-sm">Delete Post</a>
       {% else %}
       <h1>{{post.title}}</h1>
-      By: {{post.author}} | Added on: {{post.date_added}} | Category: {{post.category_title}}
-      <br>
-      {{post.content}} 
-      <br><br>
+      <p  class="post-data">{{post.author}} | Added on: {{post.date_added}} | Category: {{post.category_title}}</p> 
+      <p>{{post.content}} </p>
       <a href="{{url_for('edit_post', id = post.id)}}" class="btn btn-outline-secondary btn-sm">Edit Post</a>
       <a href="{{url_for('delete_post', id = post.id)}}" class="btn btn-outline-danger btn-sm">Delete Post</a>
       {% endif %}

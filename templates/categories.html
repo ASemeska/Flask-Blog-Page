@@ -17,17 +17,14 @@
 {% endfor %}
 
 <h1>Categories: </h1>
-<br>
 
-<div class="shadow p-3 mb-5 bg-body rounded">
+<a href="{{url_for('add_category')}}" class="btn btn-secondary submit-btn user-form-btn">Add New Caregory</a>
+<div class="search-form-container">
 	<form method="POST">
 		{{ form.hidden_tag() }}
 		{{ form.title.label(class="form-label") }}
 		{{ form.title(class="form-control") }}
-
-
-		<br/>
-		{{ form.submit(class="btn btn-secondary") }}
+		{{ form.submit(class="btn btn-secondary submit-btn user-form-btn") }}
    
 
 

@@ -96,7 +96,7 @@ class CategoryUpdateForm(FlaskForm):
     submit = SubmitField("Submit")
 
 class CategoryFilterForm(FlaskForm):
-    title = SelectField("Category title")
+    title = SelectField("Filter Posts by Category title:")
     submit = SubmitField("Filter")
 
 class PostSearchForm(FlaskForm):
@@ -163,8 +163,9 @@ def posts():
             posts = Posts.query.filter_by(title = post.title)
             return render_template("posts_filtered.html", posts = posts, form = form)
         else:
+            posts = Posts.query.order_by(Posts.date_added)
             flash("No post found with this name, please try again!")
-            return url_for('posts')
+            return render_template("posts.html", posts = posts, form = form)
     posts = Posts.query.order_by(Posts.date_added)
     return render_template("posts.html", posts = posts, form = form)
 

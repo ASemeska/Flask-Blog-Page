@@ -1,17 +1,24 @@
-<header>
-
-          <ul class="nav-bar-container">
-
-                <li class="nav-bar-list-item"><a href="{{url_for('add_post')}}" class="nav-bar-list-link">Add Post</a></li>
-                <li class="nav-bar-list-item"><a href="{{url_for('posts')}}" class="nav-bar-list-link">Posts</a></li>
-                <li class="nav-bar-list-item"><a href="{{url_for('categories')}}" class="nav-bar-list-link">Categories</a></li>
-                <li class="nav-bar-list-item"><a href="{{url_for('add_category')}}" class="nav-bar-list-link">Add Category</a></li>
-                <li class="nav-bar-list-item"><a href="{{url_for('logout')}}" class="nav-bar-list-link">Logout</a></li>
-    
-
-          </ul>
-
-
-          
 
 </header> 
+
+
+<header>
+
+      <div >
+        <nav class="container container-flex">
+            <ul>
+                <li><a href="{{url_for('add_post')}}" class="nav-bar-list-link" class="nav-bar-list-link">Create New Post</a></li>
+                <li><a href="{{url_for('posts')}}" class="nav-bar-list-link">Posts</a></li>
+                <li><a href="{{url_for('categories')}}" class="nav-bar-list-link">Categories</a></li>
+                <li><a href="{{url_for('logout')}}" class="nav-bar-list-link">Logout</a></li>
+
+
+
+            </ul>
+        </nav>
+      </div> <!-- / .container -->
+
+
+
+</header> 
+

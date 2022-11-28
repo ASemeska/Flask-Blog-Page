@@ -1,14 +1,11 @@
 import os
 from flask import Flask, render_template, flash, redirect, url_for, request
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError, SelectField, SearchField
-from wtforms.validators import DataRequired, EqualTo, Length
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
-from wtforms.widgets import TextArea
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+from forms import UserForm, LoginForm, PostForm,CategoryUpdateForm, CategoryFilterForm, PostSearchForm
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -67,41 +64,6 @@ class Category(db.Model):
     title = db.Column(db.String(150), nullable=False)
     post = db.relationship('Posts', backref='category')
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-
-
-############FORMS####################
-#Registration form:
-class UserForm(FlaskForm):
-    username = StringField("Whats your username:", validators=[DataRequired()])
-    email = StringField("Whats your email:", validators=[DataRequired()])
-    password_hash = PasswordField('Password:', validators=[DataRequired(), EqualTo('password_hash2', message='Passwords Must Match!')])
-    password_hash2 = PasswordField('Confirm Password:', validators=[DataRequired()])
-    submit = SubmitField("Submit")
-
-
-class LoginForm(FlaskForm):
-    username = StringField("Username", validators=[DataRequired()])
-    password = PasswordField("Password", validators=[DataRequired()])
-    submit = SubmitField("Submit")
-
-class PostForm(FlaskForm):
-    title = StringField("Post title", validators=[DataRequired()])
-    content = StringField("Post content", validators=[DataRequired()],widget=TextArea())
-    category = SelectField("")
-    new_category = StringField("Create new category")
-    submit = SubmitField("Submit")
-
-class CategoryUpdateForm(FlaskForm):
-    title = StringField("Category", validators=[DataRequired()])
-    submit = SubmitField("Submit")
-
-class CategoryFilterForm(FlaskForm):
-    title = SelectField("Filter Posts by Category title:")
-    submit = SubmitField("Filter")
-
-class PostSearchForm(FlaskForm):
-    title = SearchField("Search for post title:")
-    submit = SubmitField("Search")
 
 
 ###########ROUTES####################
@@ -176,7 +138,6 @@ def add_post():
     categories = Category.query.all()
     id = current_user.id
     form.category.choices = [(g.title) for g in categories]
-    
  
     if form.validate_on_submit():
         if form.new_category.data != '':
@@ -197,7 +158,6 @@ def add_post():
     form.content.data = ''
     form.new_category.data = ''
     return render_template("post_add.html", form = form)
-
 
 @app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -243,7 +203,6 @@ def edit_post(id):
     form.category.data = category.title
     return render_template("post_edit.html", form = form)
 
-
 @app.route('/posts/delete/<int:id>', methods=['GET', 'POST'])
 @login_required
 def delete_post(id):
@@ -276,9 +235,7 @@ def categories():
         posts = Posts.query.filter_by(category_title = title)
         return render_template("posts_filtered.html", form = form, categories = categories, posts = posts)
     else:
-        return render_template("categories.html", categories = categories, form = form)
-
-    
+        return render_template("categories.html", categories = categories, form = form)   
 
 @app.route('/categories/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -297,7 +254,6 @@ def edit_category(id):
         return redirect(url_for('categories', form = form, id = category.id))
     form.title.data = category.title
     return render_template("category_edit.html", form = form, id = category.id)
-
 
 @app.route('/add-category', methods=['GET', 'POST'])
 @login_required
@@ -341,10 +297,6 @@ def delete_category(id):
         flash("You are not allowed to delete this category!")
         categories = Category.query.order_by(Category.id)
         return redirect(url_for('cateogories', id = category_to_delete.id, categories = categories))
-
-
-
-
 
 
 ############CUSTOM ERRORS############ 

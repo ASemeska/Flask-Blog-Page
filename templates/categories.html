@@ -16,14 +16,14 @@
 	</div>
 {% endfor %}
 
-<h1>Categories: </h1>
+<h1 class="greeting-message">Categories: </h1>
 
-<a href="{{url_for('add_category')}}" class="btn btn-secondary submit-btn user-form-btn">Add New Caregory</a>
-<div class="search-form-container">
-	<form method="POST">
+<a href="{{url_for('add_category')}}" class="btn btn-secondary user-form-btn new-category-btn">Add New Category</a>
+<div class="search-container">
+	<form method="POST" class="form">
 		{{ form.hidden_tag() }}
-		{{ form.title.label(class="form-label") }}
-		{{ form.title(class="form-control") }}
+		{{ form.title.label(class="form-entry") }}
+		{{ form.title(class="form-control form-input form-search") }}
 		{{ form.submit(class="btn btn-secondary submit-btn user-form-btn") }}
    
 
@@ -32,12 +32,12 @@
 </div>
 
 
-<ul class="list-group list-group-flush">
+<ul class="list-container">
   {%for category in categories %}
-  <li class="list-group-item">
+  <li class="list-container-item">
     {% if category.title == "Uncategorized" %}
       {% else %}
-    <h3>{{category.title}}</h3>
+    <h3 class="list-text">{{category.title}}</h3>
     <br>
     
     <a href="{{url_for('edit_category', id = category.id)}}" class="btn btn-outline-secondary btn-sm">Edit Category</a>

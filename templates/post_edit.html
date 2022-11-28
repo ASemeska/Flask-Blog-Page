@@ -16,31 +16,31 @@
 	</div>
 {% endfor %}
 
+<h1 class="greeting-message">Edit Post</h1>
 
-<div class="shadow p-3 mb-5 bg-body rounded">
-	<form method="POST">
+<div class="content-container">
+	<form method="POST" class="form">
 		{{ form.hidden_tag() }}
-		{{ form.title.label(class="form-label") }}
-		{{ form.title(class="form-control") }}
+		{{ form.title.label(class="form-entry") }}
+		{{ form.title(class="post-form-input form-control") }}
 		<br/>
 		{{ form.content.label(class="form-label") }}
-		{{ form.content(class="form-control", rows="10") }}
+		{{ form.content(class="post-form-input form-control", rows="10") }}
 		<br/>
 		{{ form.new_category.label(class="form-label") }}
-		{{ form.new_category(class="form-control") }}
+		{{ form.new_category(class="post-form-input form-control") }}
 		<br>
 		Or select from already created categories:
 		{{ form.category.label(class="form-label") }}
-		{{ form.category(class="form-control") }}
+		{{ form.category(class="post-form-input form-control") }}
 
 		<br/>
-		{{ form.submit(class="btn btn-secondary") }}
-		
-        <br><br>
+		{{ form.submit(class="btn btn-secondary user-form-btn") }}
+		<a href="{{url_for('posts')}}" class="btn btn-secondary user-form-btn">Back to Posts</a>
         
 	</form>
 </div>
 
-<a href="{{url_for('posts')}}" class="btn btn-outline-secondary btn-sm">Back to Posts</a>
+
 
 {% endblock %}

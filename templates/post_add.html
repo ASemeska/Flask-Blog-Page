@@ -19,25 +19,25 @@
 
 
 
-<h1>Add Blog Post...</h1>
+<h1 class="greeting-message">Add Blog Post...</h1>
 	<br/>
-<div class="shadow p-3 mb-5 bg-body rounded">
-	<form method="POST">
+<div class="content-container">
+	<form method="POST" class="form">
 		{{ form.hidden_tag() }}
-		{{ form.title.label(class="form-label") }}
-		{{ form.title(class="form-control") }}
+		{{ form.title.label(class="form-entry") }}
+		{{ form.title(class="post-form-input form-control") }}
 		<br/>
 		{{ form.content.label(class="form-label") }}
-		{{ form.content(class="form-control", rows="10") }}
+		{{ form.content(class="post-form-input form-control", rows="10") }}
 		<br/>
 		{{ form.new_category.label(class="form-label") }}
-		{{ form.new_category(class="form-control") }}
+		{{ form.new_category(class="post-form-input form-control") }}
 		or select existing category:
 		{{ form.category.label(class="form-label") }}
-		{{ form.category(class="form-control") }}
+		{{ form.category(class="form-control form-input form-search") }}
 
 		<br/>
-		{{ form.submit(class="btn btn-secondary") }}
+		{{ form.submit(class="btn btn-secondary user-form-btn") }}
 
 	</form>
 </div>

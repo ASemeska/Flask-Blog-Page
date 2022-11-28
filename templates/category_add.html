@@ -16,21 +16,22 @@
 	  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 	</div>
 {% endfor %}
+	<h1 class="greeting-message">Add new Category:</h1>
 
-
-<div class="shadow p-3 mb-5 bg-body rounded">
-	<form method="POST">
+<div class="content-container">
+	<form method="POST" class="form">
 		{{ form.hidden_tag() }}
-		{{ form.title.label(class="form-label") }}
-		{{ form.title(class="form-control") }}
+		{{ form.title.label(class="form-entry") }}
+		{{ form.title(class="post-form-input form-control") }}
         <br>
-		{{ form.submit(class="btn btn-secondary") }}
+		{{ form.submit(class="btn btn-secondary user-form-btn") }}
+		<a href="{{url_for('categories')}}" class="btn btn-secondary user-form-btn">Back to Categories</a>
 		
         <br><br>
         
 	</form>
 </div>
 
-<a href="{{url_for('categories')}}" class="btn btn-outline-secondary btn-sm">Back to Categories</a>
+
 
 {% endblock %}
